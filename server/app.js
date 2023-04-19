@@ -139,6 +139,7 @@ app.get("/api/getAllAddress", async (req, res) => {
         snapshots.forEach((doc) => {
           const document = {
             id: doc.id,
+            numTrays: doc.data().numTrays,
             location: doc.data().location,
             numTrays: doc.data().numTrays,
           };
@@ -236,6 +237,36 @@ app.post("/api/updateop", async (req, res) => {
     });
   }
 });
+app.get("/api/getAllCrops", async (req, res) => {
+  console.log("Hi from API");
+  const documents = [];
+  const cropCollectionRef = collection(db, "Crop");
+  try {
+    await getDocs(cropCollectionRef)
+      .then((snapshots) => {
+        snapshots.forEach((doc) => {
+          const document = {
+            crop: doc.data().crop,
+            mode: doc.data().mode,
+            serviceCharge: doc.data().serviceCharge,
+            trayCapacity: doc.data().trayCapacity,
+          };
+          console.log(document);
+          documents.push(document);
+        });
+      })
+      .then(() => {
+        res.status(200).json({
+          message: "SUCCESS",
+          data: documents,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
 app.post("/api/deleteop", async (req, res) => {
   const body = JSON.parse(req.body);
   const id = body.id;
@@ -251,6 +282,9 @@ app.post("/api/deleteop", async (req, res) => {
       message: "SOMETHING WENT WRONG",
     });
   }
+});
+app.post("/api/updateTray", async (req, res) => {
+  console.log(body);
 });
 app.listen(3000, () => {
   console.log("Listening on port 3000");
