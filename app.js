@@ -11,6 +11,7 @@ const {
   addDoc,
   updateDoc,
   doc,
+  deleteDoc,
 } = require("firebase/firestore");
 const app = express();
 
@@ -258,9 +259,41 @@ app.get("/api/getAllCrops", async (req, res) => {
     });
   }
 });
+app.post("/api/deletecrop", async (req, res) => {
+  const body = req.body;
+  console.log(body);
+  const docRef = doc(db, "Crop", body.id);
+  try {
+    await deleteDoc(docRef).then(() => {
+      res.status(200).json({
+        message: "SUCCESSFULLY DELETED THE OPERATOR",
+      });
+    });
+  } catch {
+    res.status(500).json({
+      message: "SOMETHING WENT WRONG",
+    });
+  }
+});
+app.post("/api/deleteloc", async (req, res) => {
+  const body = req.body;
+  console.log(body);
+  const docRef = doc(db, "Location", body.id);
+  try {
+    await deleteDoc(docRef).then(() => {
+      res.status(200).json({
+        message: "SUCCESSFULLY DELETED THE OPERATOR",
+      });
+    });
+  } catch {
+    res.status(500).json({
+      message: "SOMETHING WENT WRONG",
+    });
+  }
+});
 app.post("/api/deleteop", async (req, res) => {
-  const body = JSON.parse(req.body);
-  const id = body.id;
+  const body = req.body;
+  console.log(body);
   const docRef = doc(db, "Operator", body.id);
   try {
     await deleteDoc(docRef).then(() => {
@@ -274,6 +307,7 @@ app.post("/api/deleteop", async (req, res) => {
     });
   }
 });
+
 app.post("/api/updateTray", async (req, res) => {
   try {
     const body = req.body;
