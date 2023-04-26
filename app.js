@@ -211,7 +211,7 @@ app.post("/api/addloc", async (req, res) => {
 
   try {
     await addDoc(ownerCollection, {
-      location: body.address,
+      address: body.address,
       owner: body.fullName,
       phoneno: body.phone,
       adhar: body.adhar,
