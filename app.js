@@ -83,7 +83,7 @@ app.get("/api/listowners", async (req, res) => {
             owner: doc.data().owner,
             phone: doc.data().phoneno,
             adharNumber: doc.data().adhar,
-            address: doc.data().location,
+            address: doc.data().address,
             season: doc.data().season,
             cost: doc.data().cost,
           };
@@ -146,7 +146,7 @@ app.get("/api/getAllAddress", async (req, res) => {
           const document = {
             id: doc.id,
             numTrays: doc.data().numTrays,
-            location: doc.data().location,
+            location: doc.data().address,
             numTrays: doc.data().numTrays,
             crop: doc.data().crop,
             mode: doc.data().mode,
@@ -185,6 +185,7 @@ app.post("/api/addop", async (req, res) => {
   );
   try {
     await addDoc(operatorCollection, {
+      locationId: body.locationId,
       fullName: body.fullName,
       address: body.address,
       adharNumber: body.adhar,
@@ -203,12 +204,12 @@ app.post("/api/addop", async (req, res) => {
   }
 });
 app.post("/api/addloc", async (req, res) => {
-  const operatorCollection = collection(db, "Location");
+  const ownerCollection = collection(db, "Location");
   const body = req.body;
   console.log(body);
 
   try {
-    await addDoc(operatorCollection, {
+    await addDoc(ownerCollection, {
       location: body.address,
       owner: body.fullName,
       phoneno: body.phone,
@@ -226,28 +227,6 @@ app.post("/api/addloc", async (req, res) => {
   }
 });
 
-app.post("/api/updateop", async (req, res) => {
-  try {
-    const body = JSON.parse(req.body);
-    console.log(body);
-    const docRef = doc(db, "Operator", body.id);
-    await updateDoc(docRef, {
-      fullName: body.fullName,
-      address: body.address,
-      adharNumber: body.adharNumber,
-      phone: body.phone,
-      location: body.location,
-    }).then(() => {
-      res.status(200).json({
-        message: "SUCCESS",
-      });
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "FAILED",
-    });
-  }
-});
 app.get("/api/getAllCrops", async (req, res) => {
   console.log("Hi from API");
   const documents = [];
@@ -325,6 +304,144 @@ app.post("/api/setCropToLoc", async (req, res) => {
       serviceCharge: body.serviceCharge,
       mode: body.mode,
     }).then(() => {
+      res.status(200).json({
+        message: "SUCCESS",
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.post("/api/updateop", async (req, res) => {
+  const body = req.body;
+  console.log(body.fullName, body.address, body.phone, body.adhar);
+  try {
+    const docRef = doc(db, "Operator", body.id);
+
+    await updateDoc(docRef, {
+      fullName: body.fullName,
+      address: body.address,
+      phone: body.phone,
+      adharNumber: body.adhar,
+    }).then(() => {
+      console.log("success");
+      res.status(200).json({
+        message: "SUCCESS",
+      });
+    });
+  } catch (error) {
+    console.log("Failed for some reason");
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.post("/api/updateloc", async (req, res) => {
+  const body = req.body;
+  console.log(req.body);
+  console.log(body.owner, body.address, body.phoneno, body.adhar);
+  try {
+    const docRef = doc(db, "Location", body.id);
+
+    await updateDoc(docRef, {
+      owner: body.owner,
+      address: body.address,
+      phoneno: body.phoneno,
+      adhar: body.adhar,
+    }).then(() => {
+      console.log("success");
+      res.status(200).json({
+        message: "SUCCESS",
+      });
+    });
+  } catch (error) {
+    console.log("Failed for some reason here");
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+
+app.post("/api/updatecrop", async (req, res) => {
+  console.log(req);
+  const body = req.body;
+  console.log(body);
+
+  try {
+    const docRef = doc(db, "Crop", body.id);
+    await updateDoc(docRef, {
+      crop: body.crop,
+      mode: body.mode,
+      trayCapacity: body.trayCapacity,
+      serviceCharge: body.serviceCharge,
+      duration: body.duration,
+    }).then(() => {
+      res.status(200).json({
+        message: "SUCCESS",
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.get("/api/listcrop", async (req, res) => {
+  console.log("Hi from API");
+  const documents = [];
+  const cropCollectionRef = collection(db, "Crop");
+  try {
+    await getDocs(cropCollectionRef)
+      .then((snapshots) => {
+        snapshots.forEach((doc) => {
+          const document = {
+            id: doc.id,
+            crop: doc.data().crop,
+            mode: doc.data().mode,
+            trayCapacity: doc.data().trayCapacity,
+            serviceCharge: doc.data().serviceCharge,
+            duration: doc.data().duration,
+          };
+          console.log(document);
+          documents.push(document);
+        });
+      })
+      .then(() => {
+        res.status(200).json({
+          message: "SUCCESS",
+          data: documents,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.post("/api/addcrop", async (req, res) => {
+  const cropCollection = collection(db, "Crop");
+
+  const body = req.body;
+  console.log("Hi........");
+
+  console.log(
+    body.crop,
+    body.mode,
+    body.trayCapacity,
+    body.serviceCharge,
+    body.duration
+  );
+  try {
+    await addDoc(cropCollection, {
+      crop: body.crop,
+      mode: body.mode,
+      trayCapacity: body.trayCapacity,
+      serviceCharge: body.serviceCharge,
+      duration: body.duration,
+    }).then(() => {
+      console.log("Added successfully");
       res.status(200).json({
         message: "SUCCESS",
       });
