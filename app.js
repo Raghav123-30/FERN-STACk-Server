@@ -486,6 +486,135 @@ app.post("/api/addcrop", async (req, res) => {
     });
   }
 });
+app.get("/api/getAllGeography", async (req, res) => {
+  console.log("Hi from API");
+  const documents = [];
+  const geographyCollectionRef = collection(db, "geography");
+  try {
+    await getDocs(geographyCollectionRef)
+      .then((snapshots) => {
+        snapshots.forEach((doc) => {
+          const document = {
+            id: doc.id,
+            region: doc.data().region,
+          };
+          console.log(document);
+          documents.push(document);
+        });
+      })
+      .then(() => {
+        res.status(200).json({
+          message: "SUCCESS",
+          data: documents,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.get("/api/getAllVillages", async (req, res) => {
+  console.log("Hi from API");
+  const documents = [];
+  const villageCollectionRef = collection(db, "village");
+  try {
+    await getDocs(villageCollectionRef)
+      .then((snapshots) => {
+        snapshots.forEach((doc) => {
+          const document = {
+            id: doc.id,
+            village: doc.data().villageName,
+          };
+          console.log(document);
+          documents.push(document);
+        });
+      })
+      .then(() => {
+        res.status(200).json({
+          message: "SUCCESS",
+          data: documents,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.post("/api/addVillage", async function (req, res) {
+  const body = req.body;
+  const villageCollectionRef = collection(db, "village");
+  try {
+    await addDoc(villageCollectionRef, {
+      geographyid: body.geographyId,
+      taluk: body.taluk,
+      villageName: body.village,
+    }).then(() => {
+      console.log("Added successfully");
+      res.status(200).json({
+        message: "SUCCESS",
+        data: true,
+      });
+    });
+  } catch {
+    res.status(500).json({
+      message: "FAILED",
+      data: false,
+    });
+  }
+});
+app.post("/api/addGeography", async function (req, res) {
+  const geographyCollectionRef = collection(db, "geography");
+  const body = req.body;
+  console.log(body);
+  try {
+    await addDoc(geographyCollectionRef, {
+      region: body.region,
+    }).then(() => {
+      res.status(200).json({
+        message: "SUCCESS",
+        data: true,
+      });
+    });
+  } catch {
+    {
+      console.log("failed");
+      res.status(500).json({
+        message: "FAILED",
+        data: false,
+      });
+    }
+  }
+});
+app.post("/api/addDryingCrop", async function (req, res) {
+  const body = req.body;
+  const cropListCollectionRef = collection(db, "Crop_List");
+
+  try {
+    await addDoc(cropListCollectionRef, {
+      cropname: body.cropname,
+      period: body.period,
+      villageid: body.villageid,
+      mode: body.mode,
+      pertraycapacity: body.pertraycapacity,
+    }).then(() => {
+      console.log("hello");
+      res.status(200).json({
+        message: "SUCCESS",
+        data: true,
+      });
+    });
+  } catch {
+    {
+      console.log("failed");
+      res.status(500).json({
+        message: "FAILED",
+        data: false,
+      });
+    }
+  }
+});
 app.listen(3000, () => {
   console.log("Listening on port 3000");
 });
