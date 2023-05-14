@@ -617,6 +617,38 @@ app.post("/api/addDryingCrop", async function (req, res) {
     }
   }
 });
+app.get("/api/getVillageCrops", async function (req, res) {
+  console.log("Hi from API");
+  const documents = [];
+  const villageCropsCollectionRef = collection(db, "Crop_List");
+  try {
+    await getDocs(villageCropsCollectionRef)
+      .then((snapshots) => {
+        snapshots.forEach((doc) => {
+          const document = {
+            id: doc.id,
+            cropname: doc.data().cropname,
+            mode: doc.data().mode,
+            period: doc.data().period,
+            villageid: doc.data().villageid,
+            pertraycapacity: doc.data().pertraycapacity,
+          };
+          console.log(document);
+          documents.push(document);
+        });
+      })
+      .then(() => {
+        res.status(200).json({
+          message: "SUCCESS",
+          data: documents,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
 app.listen(3000, () => {
   console.log("Listening on port 3000");
 });
