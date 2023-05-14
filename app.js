@@ -524,7 +524,9 @@ app.get("/api/getAllVillages", async (req, res) => {
         snapshots.forEach((doc) => {
           const document = {
             id: doc.id,
+            geographyId: doc.data().geographyid,
             village: doc.data().villageName,
+            taluk: doc.data().taluk,
           };
           console.log(document);
           documents.push(document);
