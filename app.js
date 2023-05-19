@@ -12,6 +12,7 @@ const {
   updateDoc,
   doc,
   deleteDoc,
+  getDoc,
 } = require("firebase/firestore");
 const app = express();
 
@@ -154,6 +155,7 @@ app.get("/api/getAllAddress", async (req, res) => {
             duration: doc.data().duration,
             trayCapacity: doc.data().trayCapacity,
             serviceCharge: doc.data().serviceCharge,
+            configured: doc.data().configured,
           };
           console.log(document);
           documents.push(document);
@@ -591,7 +593,7 @@ app.post("/api/addGeography", async function (req, res) {
 });
 app.post("/api/addDryingCrop", async function (req, res) {
   const body = req.body;
-  const cropListCollectionRef = collection(db, "Crop_List");
+  const cropListCollectionRef = collection(db, "villageCrops");
 
   try {
     await addDoc(cropListCollectionRef, {
@@ -599,7 +601,6 @@ app.post("/api/addDryingCrop", async function (req, res) {
       period: body.period,
       villageid: body.villageid,
       mode: body.mode,
-      pertraycapacity: body.pertraycapacity,
     }).then(() => {
       console.log("hello");
       res.status(200).json({
@@ -620,7 +621,7 @@ app.post("/api/addDryingCrop", async function (req, res) {
 app.get("/api/getVillageCrops", async function (req, res) {
   console.log("Hi from API");
   const documents = [];
-  const villageCropsCollectionRef = collection(db, "Crop_List");
+  const villageCropsCollectionRef = collection(db, "villageCrops");
   try {
     await getDocs(villageCropsCollectionRef)
       .then((snapshots) => {
@@ -631,7 +632,6 @@ app.get("/api/getVillageCrops", async function (req, res) {
             mode: doc.data().mode,
             period: doc.data().period,
             villageid: doc.data().villageid,
-            pertraycapacity: doc.data().pertraycapacity,
           };
           console.log(document);
           documents.push(document);
@@ -648,6 +648,30 @@ app.get("/api/getVillageCrops", async function (req, res) {
       message: "FAILED",
     });
   }
+});
+app.post("/api/getVillageId", async function (req, res) {
+  const docId = req.body.locationId;
+  console.log(docId);
+  const neededDoc = doc(db, "Location", docId);
+  const data = await getDoc(neededDoc);
+  if (data.exists()) {
+    console.log(data);
+    let villageId = data.data().villageid;
+    console.log(villageId);
+    res.status(200).json({
+      message: "SUCCESS",
+      data: villageId,
+    });
+  } else {
+    res.status(500).json({
+      message: "FAILED",
+      data: "",
+    });
+  }
+});
+app.post("/api/addNewConfiguration", async function (req, res) {
+  console.log("Bitch");
+  console.log(req.body);
 });
 app.listen(3000, () => {
   console.log("Listening on port 3000");
