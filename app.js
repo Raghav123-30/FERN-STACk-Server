@@ -656,7 +656,7 @@ app.post("/api/getVillageId", async function (req, res) {
   const data = await getDoc(neededDoc);
   if (data.exists()) {
     console.log(data);
-    let villageId = data.data().villageid;
+    let villageId = data.data().villageId;
     console.log(villageId);
     res.status(200).json({
       message: "SUCCESS",
@@ -670,8 +670,66 @@ app.post("/api/getVillageId", async function (req, res) {
   }
 });
 app.post("/api/addNewConfiguration", async function (req, res) {
-  console.log("Bitch");
-  console.log(req.body);
+  const crops = req.body.crops;
+  const locationId = req.body.locationId;
+  const CropCollectionRef = collection(db, "Crop_List");
+  try {
+    crops.forEach(async (item) => {
+      console.log(item);
+      await addDoc(CropCollectionRef, {
+        locationid: locationId,
+        mode: item.mode,
+        cropname: item.cropname,
+        period: parseInt(item.period),
+        pertraycapacity: parseInt(item.perTrayCapacity),
+      });
+    });
+    const neededDoc = doc(db, "Location", locationId);
+    await updateDoc(neededDoc, {
+      configured: true,
+    });
+    res.status(200).json({
+      message: "SUCCESS",
+    });
+  } catch {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.get("/api/getLocationCrops", async (req, res) => {
+  console.log("Hello from API");
+  const CropCollectionRef = collection(db, "Crop_List");
+  const documents = [];
+  try {
+    await getDocs(CropCollectionRef)
+      .then((snapshots) => {
+        snapshots.forEach((doc) => {
+          const document = {
+            id: doc.id,
+            cropname: doc.data().cropname,
+            mode: doc.data().mode,
+            period: doc.data().period,
+            pertraycapacity: doc.data().pertraycapacity,
+            locationid: doc.data().locationid,
+          };
+          console.log(document);
+          documents.push(document);
+        });
+      })
+      .then(() => {
+        console.log("getting crops was success");
+        res.status(200).json({
+          message: "SUCCESS",
+          data: documents,
+        });
+      });
+  } catch (error) {
+    console.log("failed");
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
 });
 app.listen(3000, () => {
   console.log("Listening on port 3000");
