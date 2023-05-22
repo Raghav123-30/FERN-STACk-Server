@@ -731,6 +731,54 @@ app.get("/api/getLocationCrops", async (req, res) => {
     });
   }
 });
+app.post("/api/addNewCropSetup", async function (req, res) {
+  const body = req.body;
+  console.log(body);
+  const cropListCollectionRef = collection(db, "Crop_List");
+  try {
+    await addDoc(cropListCollectionRef, {
+      locationid: body.locationId,
+      cropname: body.cropname,
+      mode: body.mode,
+      period: body.period,
+      pertraycapacity: body.pertraycapacity,
+    }).then(() => {
+      res.status(200).json({
+        message: "SUCCESS",
+      });
+    });
+  } catch {
+    console.log("failed");
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.post("/api/updateConfiguration", async function (req, res) {
+  console.log("Hi from Api");
+  try {
+    const crops = req.body.crops;
+    const locationId = req.body.locationId;
+    console.log(crops);
+    console.log(locationId);
+    crops.forEach(async (item) => {
+      const document = doc(db, "Crop_List", item.id);
+      await updateDoc(document, {
+        cropname: item.cropname,
+        mode: item.mode,
+        period: parseInt(item.period),
+        pertraycapacity: parseInt(item.pertraycapacity),
+      });
+    });
+    res.status(200).json({
+      message: "SUCCESS",
+    });
+  } catch {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
 app.listen(3000, () => {
   console.log("Listening on port 3000");
 });
