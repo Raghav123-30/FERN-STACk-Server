@@ -779,6 +779,50 @@ app.post("/api/updateConfiguration", async function (req, res) {
     });
   }
 });
+app.post("/api/getProductOrders", async function (req, res) {
+  const locationId = req.body.id;
+  console.log(locationId);
+});
+app.post("/api/fetchSetupDetails", async function (req, res) {
+  console.log("Hi from API");
+  const body = req.body;
+  const locationId = body.locationId;
+
+  try {
+    const locationDocRef = doc(db, "Location", locationId);
+    const locationData = await getDoc(locationDocRef);
+    if (locationData.exists()) {
+      const productId = locationData.data().productId;
+      if (productId) {
+        const productDocRef = doc(db, "Product", productId);
+        const productData = await getDoc(productDocRef);
+        if (productData.exists()) {
+          const productName = productData.data().productName;
+          const rack = productData.data().rack;
+          const layers = productData.data().section;
+          const trays = productData.data().tray;
+          res.status(200).json({
+            message: "SUCCESS",
+            data: {
+              productName: productName,
+              rack: rack,
+              layers: layers,
+              trays: trays,
+            },
+          });
+        }
+      }
+    }
+  } catch {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.post("/api/getOrders", async function (req, res) {
+  const locationId = req.body.locationId;
+  console.log(locationId);
+});
 app.listen(3000, () => {
   console.log("Listening on port 3000");
 });
