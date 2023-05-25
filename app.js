@@ -822,6 +822,42 @@ app.post("/api/fetchSetupDetails", async function (req, res) {
 app.post("/api/getOrders", async function (req, res) {
   const locationId = req.body.locationId;
   console.log(locationId);
+  const documents = [];
+  try {
+    const ordersCollection = collection(db, "New Booking");
+    await getDocs(ordersCollection).then((snapshots) => {
+      snapshots.forEach((doc) => {
+        const document = {
+          colorcode: doc.data().colorcode,
+          farmername: doc.data().farmername,
+          farmeraddress: doc.data().farmeraddress,
+          farmerphone: doc.data().farmerphone,
+          selectedmode: doc.data().selectedmode,
+          trayallocation: doc.data().trayallocation,
+          totalnumberoftrays: doc.data().totalnumneroftrays,
+          selectedcrop: doc.data().selectedcrop,
+          dateofarrival: doc.data().dateofarrival,
+          dateofdispatch: doc.data().dateofdispatch,
+          locationId: doc.data().locationid,
+          status: doc.data().status,
+        };
+        if (
+          document.status == 1 &&
+          document.selectedmode == "Drying" &&
+          document.locationId == locationId
+        ) {
+          console.log(document);
+          documents.push(document);
+        }
+      });
+      res.status(200).json({
+        message: "SUCCESS",
+        data: documents,
+      });
+    });
+  } catch {
+    console.log("failed");
+  }
 });
 app.listen(3000, () => {
   console.log("Listening on port 3000");
