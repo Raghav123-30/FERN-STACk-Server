@@ -376,7 +376,30 @@ app.post("/api/updateloc", async (req, res) => {
     });
   }
 });
+app.post("/api/addproduct", async (req, res) => {
+  const operatorCollection = collection(db, "Product");
 
+  const body = req.body;
+  console.log("Hi........");
+  console.log(body.id, body.productName, body.rack, body.section, body.tray);
+  try {
+    await addDoc(operatorCollection, {
+      productName: body.productName,
+      rack: body.rack,
+      section: body.section,
+      tray: body.tray,
+    }).then(() => {
+      console.log("Added successfully");
+      res.status(200).json({
+        message: "SUCCESS",
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
 app.post("/api/updatecrop", async (req, res) => {
   console.log(req);
   const body = req.body;
