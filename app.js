@@ -206,29 +206,6 @@ app.post("/api/addop", async (req, res) => {
     });
   }
 });
-app.post("/api/addloc", async (req, res) => {
-  const ownerCollection = collection(db, "Location");
-  const body = req.body;
-  console.log(body);
-
-  try {
-    await addDoc(ownerCollection, {
-      address: body.address,
-      owner: body.fullName,
-      phoneno: body.phone,
-      adhar: body.adhar,
-    }).then(() => {
-      console.log("Added successfully");
-      res.status(200).json({
-        message: "SUCCESS",
-      });
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "FAILED",
-    });
-  }
-});
 
 app.get("/api/getAllCrops", async (req, res) => {
   console.log("Hi from API");
@@ -857,6 +834,193 @@ app.post("/api/getOrders", async function (req, res) {
     });
   } catch {
     console.log("failed");
+  }
+});
+app.post("/api/addloc", async (req, res) => {
+  const ownerCollection = collection(db, "Location");
+  const body = req.body;
+  console.log(body);
+
+  try {
+    await addDoc(ownerCollection, {
+      address: body.address,
+      owner: body.fullName,
+      phoneno: body.phone,
+      adhar: body.adhar,
+      productId: body.productId,
+      geographyId: body.geographyId,
+      villageId: body.villageId,
+      configured: body.configured,
+      homeAddress: body.homeAddress,
+    }).then(() => {
+      console.log("Added successfully");
+      res.status(200).json({
+        message: "SUCCESS",
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.post("/api/updateproduct", async (req, res) => {
+  console.log(req);
+  const body = req.body;
+  console.log(body);
+
+  try {
+    const docRef = doc(db, "Product", body.id);
+    await updateDoc(docRef, {
+      productName: body.productName,
+      rack: body.rack,
+      section: body.section,
+      tray: body.tray,
+    }).then(() => {
+      res.status(200).json({
+        message: "SUCCESS",
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.get("/api/listproduct", async (req, res) => {
+  console.log("Hi from API");
+  const documents = [];
+  const operatorCollectionRef = collection(db, "Product");
+  try {
+    await getDocs(operatorCollectionRef)
+      .then((snapshots) => {
+        snapshots.forEach((doc) => {
+          const document = {
+            id: doc.id,
+            productName: doc.data().productName,
+            rack: doc.data().rack,
+            section: doc.data().section,
+            tray: doc.data().tray,
+          };
+          console.log(document);
+          documents.push(document);
+        });
+      })
+      .then(() => {
+        res.status(200).json({
+          message: "SUCCESS",
+          data: documents,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.get("/api/getProductAddress", async (req, res) => {
+  console.log("Hi from API");
+  const documents = [];
+  const operatorCollectionRef = collection(db, "Product");
+  try {
+    await getDocs(operatorCollectionRef)
+      .then((snapshots) => {
+        snapshots.forEach((doc) => {
+          const document = {
+            id: doc.id,
+            productName: doc.data().productName,
+            rack: doc.data().rack,
+            section: doc.data().section,
+            tray: doc.data().tray,
+          };
+          console.log(document);
+          documents.push(document);
+        });
+      })
+      .then(() => {
+        res.status(200).json({
+          message: "SUCCESS",
+          data: documents,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.get("/api/getGeographyAddress", async (req, res) => {
+  console.log("Hi from API");
+  const documents = [];
+  const operatorCollectionRef = collection(db, "geography");
+  try {
+    await getDocs(operatorCollectionRef)
+      .then((snapshots) => {
+        snapshots.forEach((doc) => {
+          const document = {
+            id: doc.id,
+            region: doc.data().region,
+          };
+          console.log(document);
+          documents.push(document);
+        });
+      })
+      .then(() => {
+        res.status(200).json({
+          message: "SUCCESS",
+          data: documents,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.get("/api/getVillageAddress", async (req, res) => {
+  console.log("Hi from API");
+  const documents = [];
+  const operatorCollectionRef = collection(db, "village");
+  try {
+    await getDocs(operatorCollectionRef)
+      .then((snapshots) => {
+        snapshots.forEach((doc) => {
+          const document = {
+            id: doc.id,
+            geographyid: doc.data().geographyid,
+            taluk: doc.data().taluk,
+            villageName: doc.data().villageName,
+          };
+          console.log(document);
+          documents.push(document);
+        });
+      })
+      .then(() => {
+        res.status(200).json({
+          message: "SUCCESS",
+          data: documents,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      message: "FAILED",
+    });
+  }
+});
+app.post("/api/deleteproduct", async (req, res) => {
+  const body = req.body;
+  console.log(body);
+  const docRef = doc(db, "Product", body.id);
+  try {
+    await deleteDoc(docRef).then(() => {
+      res.status(200).json({
+        message: "SUCCESSFULLY DELETED THE A3S Product",
+      });
+    });
+  } catch {
+    res.status(500).json({
+      message: "SOMETHING WENT WRONG",
+    });
   }
 });
 app.listen(3000, () => {
