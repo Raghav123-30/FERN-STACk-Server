@@ -1,18 +1,28 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
-const secret = "pequrelInterns@$!!8*"; // Replace with your actual secret key
+const { auth } = require("../firebase");
+const { signInWithEmailAndPassword } = require("firebase/auth");
+const secret = "pequrelInterns@$!!8*";
 
-router.post("/login", (req, res) => {
+router.post("/login", async function (req, res) {
   console.log(req.body);
+  const email = req.body.email;
+  const password = req.body.password;
 
-  // In a real app, you should validate the user's credentials here
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
 
-  const username = "raghav";
-  const payload = { username }; // You can include additional data here
-  const token = jwt.sign(payload, secret, { expiresIn: "1h" });
+    const payload = { email };
+    const token = jwt.sign(payload, secret, { expiresIn: "1h" });
 
-  res.status(200).json({ token: token, message: "SUCCESS" });
+    res.status(200).json({ token: token, message: "SUCCESS" });
+  } catch {
+    res.status(500).json({
+      message: "INVALID CREDENTIALS",
+      data: false,
+    });
+  }
 });
 
 router.post("/checkAuthState", (req, res) => {
